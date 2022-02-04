@@ -39,7 +39,7 @@ except:
     print(u'Для установки: sudo apt install python3-dialog')
     sys.exit(2)
 
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 1, 4)
 
 DEBUG_MODE = False
 

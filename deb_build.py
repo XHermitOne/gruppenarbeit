@@ -146,7 +146,7 @@ def saveTextFile(txt_filename, txt='', rewrite=True):
 
 
 PACKAGENAME = 'gruppenarbeit'
-PACKAGE_VERSION = '1.3'
+PACKAGE_VERSION = '1.4'
 LINUX_VERSION = '-'.join([str(x).lower() for x in getOSVersion()[:-1]])
 LINUX_PLATFORM = 'all'  # 'amd64' if is64Linux() else 'i386'
 DEPENDS = ', '.join(('python3-dialog', ))
@@ -225,7 +225,8 @@ def build_deb():
     sys_cmd(f'cp ./scripts/*.sh ./deb/opt/{PACKAGENAME}/scripts')
     sys_cmd(f'chmod 777 ./deb/opt/{PACKAGENAME}/scripts/*.sh')
 
-    saveTextFile(DEBIAN_POSTINST_FILENAME, 'ln -s /opt/gruppenarbeit/gruppenarbeit.py /usr/bin/gruppenarbeit')
+    saveTextFile(DEBIAN_POSTINST_FILENAME,
+                 'ln -s /opt/gruppenarbeit/gruppenarbeit.py /usr/bin/gruppenarbeit\npip3 install rich')
     sys_cmd(f'chmod 775 {DEBIAN_POSTINST_FILENAME}')
     saveTextFile(DEBIAN_POSTRM_FILENAME, 'rm /usr/bin/gruppenarbeit')
     sys_cmd(f'chmod 775 {DEBIAN_POSTRM_FILENAME}')
