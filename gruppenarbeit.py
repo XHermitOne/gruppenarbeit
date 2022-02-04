@@ -21,6 +21,7 @@ import getopt
 import os
 import os.path
 import stat
+import shutil
 import glob
 import operator
 
@@ -38,7 +39,7 @@ except:
     print(u'Для установки: sudo apt install python3-dialog')
     sys.exit(2)
 
-__version__ = (0, 0, 0, 1)
+__version__ = (0, 0, 1, 3)
 
 DEBUG_MODE = False
 
@@ -49,6 +50,7 @@ HOME_PATH = os.environ['HOME'] if 'HOME' in os.environ else (os.environ.get('HOM
 PROFILE_DIRNAME = '.gruppenarbeit'
 PROFILE_PATH = os.path.join(HOME_PATH, PROFILE_DIRNAME)
 HOSTS_FILENAME = 'hosts.csv'
+DEFAULT_HOSTS_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), HOSTS_FILENAME)
 CSV_DELIMETER = ';'
 COMMENT_SIGNATURE = '#'
 SCRIPT_DESCRIPTION_SIGNATURE = '#TITLE:'
@@ -178,12 +180,22 @@ def createHostsFilename(hosts_filename):
     :param hosts_filename: Имя создаваемого файла хостов групповой обработки.
     :return: True/False.
     """
-    content = u''
-    columns = u'GROUPNAME;HOSTNAME;HOST;USERNAME;PASSWORD;STATE' + os.linesep
-    content += columns
-    localhost = u'Локальный компьютер;Локальный компьютер;localhost;;;False'
-    content += localhost
-    return saveTextFile(hosts_filename, content)
+    if not os.path.exists(DEFAULT_HOSTS_FILENAME):
+        content = u''
+        columns = u'GROUPNAME;HOSTNAME;HOST;USERNAME;PASSWORD;STATE' + os.linesep
+        content += columns
+        localhost = u'Локальный компьютер;Локальный компьютер;localhost;;;False'
+        content += localhost
+        return saveTextFile(hosts_filename, content)
+    else:
+        profile_path = os.path.dirname(hosts_filename)
+        if not os.path.exists(profile_path):
+            try:
+                os.makedirs(profile_path)
+            except:
+                return False
+        shutil.copyfile(DEFAULT_HOSTS_FILENAME, hosts_filename)
+        return True
 
 
 def getHostsFilename():
@@ -291,7 +303,7 @@ def getScripts(scripts_path=None):
     :return:
     """
     if scripts_path is None:
-        prg_dirname = os.path.dirname(__file__)
+        prg_dirname = os.path.dirname(os.path.realpath(__file__))
         scripts_path = os.path.join(prg_dirname, 'scripts')
 
     scripts = list()

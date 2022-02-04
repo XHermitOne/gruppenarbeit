@@ -146,9 +146,9 @@ def saveTextFile(txt_filename, txt='', rewrite=True):
 
 
 PACKAGENAME = 'gruppenarbeit'
-PACKAGE_VERSION = '0.1'
+PACKAGE_VERSION = '1.3'
 LINUX_VERSION = '-'.join([str(x).lower() for x in getOSVersion()[:-1]])
-LINUX_PLATFORM = 'amd64' if is64Linux() else 'i386'
+LINUX_PLATFORM = 'all'  # 'amd64' if is64Linux() else 'i386'
 DEPENDS = ', '.join(('python3-dialog', ))
 COPYRIGHT = '<xhermitone@gmail.com>'
 DESCRIPTION = 'The Linux utility for batch execution of commands '
@@ -215,22 +215,19 @@ def build_deb():
         sys_cmd(f'chmod 777 ./deb/opt/{PACKAGENAME}/gruppenarbeit.py')
     else:
         print_color_txt('File <./gruppenarbeit.py> not found', RED_COLOR_TEXT)
-    if os.path.exists('./scripts/get_system_info.sh'):
-        sys_cmd(f'rm ./deb/opt/{PACKAGENAME}/scripts/get_system_info.sh')
-        sys_cmd(f'cp ./scripts/get_system_info.sh ./deb/opt/{PACKAGENAME}/scripts')
-        sys_cmd(f'chmod 777 ./deb/opt/{PACKAGENAME}/scripts/get_system_info.sh')
+    if os.path.exists('./hosts.csv'):
+        sys_cmd(f'rm ./deb/opt/{PACKAGENAME}/hosts.csv')
+        sys_cmd(f'cp ./hosts.csv ./deb/opt/{PACKAGENAME}')
     else:
-        print_color_txt('File <./scripts/get_system_info.sh> not found', RED_COLOR_TEXT)
-    if os.path.exists('./scripts/install_ext_programms.sh'):
-        sys_cmd(f'rm ./deb/opt/{PACKAGENAME}/scripts/install_ext_programms.sh')
-        sys_cmd(f'cp ./scripts/install_ext_programms.sh ./deb/opt/{PACKAGENAME}/scripts')
-        sys_cmd(f'chmod 777 ./deb/opt/{PACKAGENAME}/scripts/install_ext_programms.sh')
-    else:
-        print_color_txt('File <./scripts/install_ext_programms.sh> not found', RED_COLOR_TEXT)
+        print_color_txt('File <./hosts.csv> is not found', YELLOW_COLOR_TEXT)
 
-    saveTextFile(DEBIAN_POSTINST_FILENAME, 'ln -s /usr/bin/gruppenarbeit /opt/gruppenarbeit/gruppenarbeit.py')
+    sys_cmd(f'rm ./deb/opt/{PACKAGENAME}/scripts/*.sh')
+    sys_cmd(f'cp ./scripts/*.sh ./deb/opt/{PACKAGENAME}/scripts')
+    sys_cmd(f'chmod 777 ./deb/opt/{PACKAGENAME}/scripts/*.sh')
+
+    saveTextFile(DEBIAN_POSTINST_FILENAME, 'ln -s /opt/gruppenarbeit/gruppenarbeit.py /usr/bin/gruppenarbeit')
     sys_cmd(f'chmod 775 {DEBIAN_POSTINST_FILENAME}')
-    saveTextFile(DEBIAN_POSTRM_FILENAME, 'mv /usr/bin/gruppenarbeit')
+    saveTextFile(DEBIAN_POSTRM_FILENAME, 'rm /usr/bin/gruppenarbeit')
     sys_cmd(f'chmod 775 {DEBIAN_POSTRM_FILENAME}')
 
     sys_cmd('fakeroot dpkg-deb --build deb')
@@ -251,6 +248,7 @@ def build():
     start_time = time.time()
     # print_color_txt(__doc__,CYAN_COLOR_TEXT)
     # compile_and_link()
+    sys_cmd('rm ./*.deb')
     build_deb()
     sys_cmd('ls *.deb')
     print_color_txt(__doc__, CYAN_COLOR_TEXT)
